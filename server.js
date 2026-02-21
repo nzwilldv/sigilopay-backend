@@ -9,44 +9,36 @@ app.get("/", (req, res) => res.status(200).send("OK"));
 
 app.post("/criar-pagamento", async (req, res) => {
   try {
-    const { products = [], customer = {} } = req.body;
+    const { products } = req.body;
 
-    if (!Array.isArray(products) || products.length === 0) {
+    if (!products || products.length === 0) {
       return res.status(400).json({ error: "Carrinho vazio" });
     }
 
-    // ✅ soma total do carrinho (price * quantity)
-    const total = products.reduce((acc, p) => {
-  const price = Number(p.price ?? 0);     // reais
-  const qty = Number(p.quantity ?? 1);
-  return acc + price * qty;
-}, 0);
+    // total em reais
+    const totalReais = products.reduce(
+      (sum, item) => sum + item.price * item.quantity,
+      0
+    );
 
-const priceInCents = Math.round(total * 100); // centavos
+    // CONVERSÃO CORRETA PARA CENTAVOS
+    const totalCentavos = Math.round(totalReais * 100);
 
     const payload = {
       product: {
-        externalId: `cart-${Date.now()}`,
-        name: `Carrinho (${products.length} item${products.length > 1 ? "s" : ""})`,
-        photos: [], // ✅ não enviar fotos (evita erro de URL)
+        externalId: "copo-personalizado",
+        name: "Copo Personalizado Infantil",
+        photos: [
+          "https://seusite.com/produto.jpg" // precisa ser URL válida
+        ],
         offer: {
-          name: "Compra no carrinho",
-          price: Math.round(items.price * 100)
+          name: "Compra única",
+          price: totalCentavos, // 👈 AQUI ESTÁ A CHAVE
           offerType: "NATIONAL",
           currency: "BRL",
-          lang: "pt-BR",
-        },
-      },
-      settings: {
-        paymentMethods: ["PIX", "CREDIT_CARD", "BOLETO"],
-        acceptedDocs: ["CPF"],
-        askForAddress: false,
-      },
-      customer,
-      trackProps: {
-        source: "site",
-        items_count: String(products.length),
-      },
+          lang: "pt-BR"
+        }
+      }
     };
 
     const response = await fetch(
@@ -56,24 +48,22 @@ const priceInCents = Math.round(total * 100); // centavos
         headers: {
           "Content-Type": "application/json",
           "x-public-key": process.env.SIGILO_PUBLIC_KEY,
-          "x-secret-key": process.env.SIGILO_SECRET_KEY,
+          "x-secret-key": process.env.SIGILO_SECRET_KEY
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify(payload)
       }
     );
 
     const data = await response.json();
 
-    if (!response.ok || !data.checkoutUrl) {
+    if (!data.checkoutUrl) {
       return res.status(500).json({ error: "Erro SigiloPay", details: data });
     }
 
-    return res.json({ checkout_url: data.checkoutUrl });
-  } catch (error) {
-    console.error("Erro ao criar pagamento:", error);
-    return res
-      .status(500)
-      .json({ error: "Erro interno", details: String(error) });
+    res.json({ checkout_url: data.checkoutUrl });
+
+  } catch (err) {
+    res.status(500).json({ error: "Erro interno", details: err.message });
   }
 });
 
