@@ -25,21 +25,16 @@ app.post("/criar-pagamento", async (req, res) => {
     const totalCentavos = Math.round(totalReais * 100);
 
     const payload = {
-      product: {
-        externalId: "copo-personalizado",
-        name: "Copo Personalizado Infantil",
-        photos: [
-          "https://seusite.com/produto.jpg" // precisa ser URL válida
-        ],
-        offer: {
-          name: "Compra única",
-          price: totalCentavos, // 👈 AQUI ESTÁ A CHAVE
-          offerType: "NATIONAL",
-          currency: "BRL",
-          lang: "pt-BR"
-        }
-      }
-    };
+  product: {
+    externalId: "copo-personalizado",
+    name: "Copo Personalizado Infantil",
+    offer: {
+      name: "Compra única",
+      price: totalCentavosNum,
+      currency: "BRL"
+    }
+  }
+};
 
     const response = await fetch(
       "https://app.sigilopay.com.br/api/v1/gateway/checkout",
