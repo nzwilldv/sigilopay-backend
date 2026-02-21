@@ -23,9 +23,10 @@ app.post("/criar-pagamento", async (req, res) => {
 
     // CONVERSÃO CORRETA PARA CENTAVOS
     const totalCentavos = Math.round(totalReais * 100);
+    const referenceId = `pedido-${Date.now()}`;
 
     const payload = {
-  referenceId: "pedido-123456", // ID do pedido (obrigatório)
+  referenceId, // ID do pedido (obrigatório)
   amount: totalCentavos,        // valor TOTAL em centavos (ex: 1990)
   currency: "BRL",
 
