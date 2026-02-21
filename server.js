@@ -48,7 +48,7 @@ app.post("/criar-pagamento", async (req, res) => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${process.env.SIGILO_API_KEY}`
+          "x-api-key": process.env.SIGILO_API_KEY
         },
         body: JSON.stringify(payload)
       }
