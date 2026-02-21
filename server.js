@@ -25,15 +25,16 @@ app.post("/criar-pagamento", async (req, res) => {
     const totalCentavos = Math.round(totalReais * 100);
 
     const payload = {
+  referenceId: "pedido-123456", // ID do pedido (obrigatório)
+  amount: totalCentavos,        // valor TOTAL em centavos (ex: 1990)
+  currency: "BRL",
+
   product: {
-    externalId: "copo-personalizado",
-    name: "Copo Personalizado Infantil",
-    offer: {
-      name: "Compra única",
-      price: totalCentavosNum,
-      currency: "BRL"
-    }
-  }
+    name: "Copo Personalizado Infantil"
+  },
+
+  successUrl: "https://seusite.com/sucesso",
+  cancelUrl: "https://seusite.com/cancelado"
 };
 
     const response = await fetch(
