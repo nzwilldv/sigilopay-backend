@@ -1,7 +1,8 @@
 app.post("/criar-pagamento", async (req, res) => {
   try {
     const items = req.body.items || req.body.products;
-
+codex/generate-unique-referenceid-for-payments-eidhyr
+ main
     if (!Array.isArray(items) || items.length === 0) {
       return res.status(400).json({ error: "Carrinho vazio" });
     }
@@ -14,6 +15,22 @@ app.post("/criar-pagamento", async (req, res) => {
     }, 0);
 
     const totalCentavos = Math.round(totalReais * 100);
+    if (!Number.isInteger(totalCentavos) || totalCentavos <= 0) {
+      return res.status(400).json({ error: "Total inválido", totalReais });
+    }
+
+codex/generate-unique-referenceid-for-payments-eidhyr
+    const referenceId = `pedido-${Date.now()}`;
+
+    const payload = {
+      referenceId,
+      amount: totalCentavos,
+      currency: "BRL",
+      product: { name: "Copo Personalizado Infantil" },
+      successUrl: "https://seusite.com/sucesso",
+      cancelUrl: "https://seusite.com/cancelado"
+    };
+
 
     if (!Number.isInteger(totalCentavos) || totalCentavos <= 0) {
       return res.status(400).json({ error: "Total inválido", totalReais });
@@ -30,6 +47,7 @@ app.post("/criar-pagamento", async (req, res) => {
       cancelUrl: "https://seusite.com/cancelado"
     };
 
+ main
     const response = await fetch("https://app.sigilopay.com.br/api/v1/gateway/checkout", {
       method: "POST",
       headers: {
