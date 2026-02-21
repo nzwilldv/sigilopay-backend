@@ -41,7 +41,8 @@ app.post("/criar-pagamento", async (req, res) => {
         source: "site"
       }
     };
-
+console.log("PUBLIC len:", (process.env.SIGILO_PUBLIC_KEY || "").length);
+console.log("SECRET len:", (process.env.SIGILO_SECRET_KEY || "").length);
     const response = await fetch(
   "https://app.sigilopay.com.br/api/v1/gateway/checkout",
   {
