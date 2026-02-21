@@ -9,8 +9,32 @@ app.get("/", (req, res) => res.status(200).send("OK"));
 
 app.post("/criar-pagamento", async (req, res) => {
   try {
-    const { totalReais } = req.body;
-    const totalCentavos = Math.round(Number(totalReais) * 100);
+    const items = req.body.items || req.body.products;
+
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      return res.status(400).json({ error: "Itens inválidos" });
+    }
+
+    const itemsValidos = items.every((item) => {
+      const price = Number(item?.price);
+      const quantity = Number(item?.quantity);
+      return Number.isFinite(price) && Number.isFinite(quantity) && quantity > 0;
+    });
+
+    if (!itemsValidos) {
+      return res.status(400).json({ error: "Itens inválidos" });
+    }
+
+    const totalReais = items.reduce(
+      (sum, item) => sum + Number(item.price) * Number(item.quantity),
+      0
+    );
+
+    const totalCentavos = Math.round(totalReais * 100);
+    if (!Number.isInteger(totalCentavos) || totalCentavos <= 0) {
+      return res.status(400).json({ error: "Total inválido" });
+    }
+
     const referenceId = `pedido-${Date.now()}`;
 
     const payload = {
