@@ -26,17 +26,40 @@ app.post("/criar-pagamento", async (req, res) => {
     const referenceId = `pedido-${Date.now()}`;
 
     const payload = {
-  referenceId, // ID do pedido (obrigatório)
-  amount: totalCentavos,        // valor TOTAL em centavos (ex: 1990)
+const totalCentavos = Math.round(totalReais * 100);
+const referenceId = `pedido-${Date.now()}`;
+
+const payload = {
+  referenceId: referenceId,
+  amount: totalCentavos,
   currency: "BRL",
-
-  product: {
-    name: "Copo Personalizado Infantil"
-  },
-
-  successUrl: "https://seusite.com/sucesso",
-  cancelUrl: "https://seusite.com/cancelado"
+  // ...
 };
+      product: {
+        name: "Copo Personalizado Infantil"
+      },
+
+      successUrl: "https://seusite.com/sucesso",
+      cancelUrl: "https://seusite.com/cancelado"
+    };
+
+    const amount = Number(payload.amount);
+    if (!Number.isInteger(amount) || amount <= 0) {
+      return res.status(400).json({ error: "amount inválido", amount });
+    }
+
+    if (
+      !payload.successUrl?.startsWith("https://") ||
+      !payload.cancelUrl?.startsWith("https://")
+    ) {
+      return res.status(400).json({
+        error: "URLs inválidas",
+        successUrl: payload.successUrl,
+        cancelUrl: payload.cancelUrl
+      });
+    }
+
+    console.log("SIGILOPAY PAYLOAD:", JSON.stringify(payload, null, 2));
 
     const response = await fetch(
       "https://app.sigilopay.com.br/api/v1/gateway/checkout",
@@ -53,14 +76,28 @@ app.post("/criar-pagamento", async (req, res) => {
 
     const data = await response.json();
 
+    if (!response.ok) {
+      throw {
+        response: {
+          status: response.status,
+          data
+        },
+        message: `Erro SigiloPay ${response.status}`
+      };
+    }
+
     if (!data.checkoutUrl) {
       return res.status(500).json({ error: "Erro SigiloPay", details: data });
     }
 
     res.json({ checkout_url: data.checkoutUrl });
 
-  } catch (err) {
-    res.status(500).json({ error: "Erro interno", details: err.message });
+  } catch (error) {
+    console.log("SIGILOPAY STATUS:", error?.response?.status);
+    console.log("SIGILOPAY DATA:", JSON.stringify(error?.response?.data, null, 2));
+    console.log("SIGILOPAY MESSAGE:", error?.message);
+    console.log("SIGILOPAY STACK:", error?.stack);
+    res.status(500).json({ error: "Erro interno", details: error.message });
   }
 });
 
