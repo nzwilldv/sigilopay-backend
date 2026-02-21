@@ -16,20 +16,25 @@ app.post("/criar-pagamento", async (req, res) => {
     }
 
     // 👉 usando o PRIMEIRO produto do carrinho
-    const item = products[0];
+    const total = products.reduce((acc, p) => {
+  const price = Number(p.price || 0);
+  const qty = Number(p.quantity || 1);
+  return acc + price * qty;
+}, 0);
 
+const priceInCents = Math.round(total * 100);
     const payload = {
       product: {
         externalId: String(item.id || "produto-001"),
         name: item.name,
         photos: [],
         offer: {
-          name: item.name,
-          price: Math.round(Number(item.price) * 100), // CENTAVOS
-          offerType: "NATIONAL",
-          currency: "BRL",
-          lang: "pt-BR"
-        }
+  name: "Carrinho - Copos",
+  price: priceInCents,
+  offerType: "NATIONAL",
+  currency: "BRL",
+  lang: "pt-BR"
+}
       },
       settings: {
         paymentMethods: ["PIX", "CREDIT_CARD", "BOLETO"],
