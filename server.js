@@ -22,7 +22,7 @@ app.post("/criar-pagamento", async (req, res) => {
       product: {
         externalId: String(item.id || "produto-001"),
         name: item.name,
-        photos: item.image ? [item.image] : [],
+        photos: [],
         offer: {
           name: item.name,
           price: Math.round(Number(item.price) * 100), // CENTAVOS
