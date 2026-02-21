@@ -31,7 +31,7 @@ const priceInCents = Math.round(total * 100); // centavos
         photos: [], // ✅ não enviar fotos (evita erro de URL)
         offer: {
           name: "Compra no carrinho",
-          price: Math.round(totalPrice * 100)
+          price: priceInCents, // ✅ centavos
           offerType: "NATIONAL",
           currency: "BRL",
           lang: "pt-BR",
