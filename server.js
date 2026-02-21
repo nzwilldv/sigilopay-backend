@@ -17,16 +17,12 @@ app.post("/criar-pagamento", async (req, res) => {
 
     // ✅ soma total do carrinho (price * quantity)
     const total = products.reduce((acc, p) => {
-      const price = Number(p.price ?? 0);
-      const qty = Number(p.quantity ?? 1);
-      return acc + price * qty;
-    }, 0);
+  const price = Number(p.price ?? 0);     // reais
+  const qty = Number(p.quantity ?? 1);
+  return acc + price * qty;
+}, 0);
 
-    if (!Number.isFinite(total) || total <= 0) {
-      return res.status(400).json({ error: "Total inválido", total });
-    }
-
-    const priceInCents = Math.round(total * 100);
+const priceInCents = Math.round(total * 100); // centavos
 
     const payload = {
       product: {
