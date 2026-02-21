@@ -9,33 +9,18 @@ app.get("/", (req, res) => res.status(200).send("OK"));
 
 app.post("/criar-pagamento", async (req, res) => {
   try {
-    const { products } = req.body;
-
-    if (!products || products.length === 0) {
-      return res.status(400).json({ error: "Carrinho vazio" });
-    }
-
-    // total em reais
-    const totalReais = products.reduce(
-      (sum, item) => sum + item.price * item.quantity,
-      0
-    );
-
-    // CONVERSÃO CORRETA PARA CENTAVOS
-    const totalCentavos = Math.round(totalReais * 100);
+    const { totalReais } = req.body;
+    const totalCentavos = Math.round(Number(totalReais) * 100);
+    const referenceId = `pedido-${Date.now()}`;
 
     const payload = {
-  referenceId: "pedido-123456", // ID do pedido (obrigatório)
-  amount: totalCentavos,        // valor TOTAL em centavos (ex: 1990)
-  currency: "BRL",
-
-  product: {
-    name: "Copo Personalizado Infantil"
-  },
-
-  successUrl: "https://seusite.com/sucesso",
-  cancelUrl: "https://seusite.com/cancelado"
-};
+      referenceId,
+      amount: totalCentavos,
+      currency: "BRL",
+      product: { name: "Copo Personalizado Infantil" },
+      successUrl: "https://seusite.com/sucesso",
+      cancelUrl: "https://seusite.com/cancelado"
+    };
 
     const response = await fetch(
       "https://app.sigilopay.com.br/api/v1/gateway/checkout",
@@ -52,14 +37,14 @@ app.post("/criar-pagamento", async (req, res) => {
 
     const data = await response.json();
 
-    if (!data.checkoutUrl) {
+    if (!response.ok) {
       return res.status(500).json({ error: "Erro SigiloPay", details: data });
     }
 
-    res.json({ checkout_url: data.checkoutUrl });
-
-  } catch (err) {
-    res.status(500).json({ error: "Erro interno", details: err.message });
+    return res.json({ url: data.checkoutUrl });
+  } catch (error) {
+    console.log("ERRO:", error?.message);
+    return res.status(500).json({ error: "Erro ao criar pagamento" });
   }
 });
 
