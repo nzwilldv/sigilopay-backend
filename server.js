@@ -26,10 +26,15 @@ app.post("/criar-pagamento", async (req, res) => {
     const referenceId = `pedido-${Date.now()}`;
 
     const payload = {
-      referenceId: referenceId, // ID do pedido (obrigatório)
-      amount: totalCentavos, // valor TOTAL em centavos (ex: 1990)
-      currency: "BRL",
+const totalCentavos = Math.round(totalReais * 100);
+const referenceId = `pedido-${Date.now()}`;
 
+const payload = {
+  referenceId: referenceId,
+  amount: totalCentavos,
+  currency: "BRL",
+  // ...
+};
       product: {
         name: "Copo Personalizado Infantil"
       },
