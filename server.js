@@ -43,16 +43,17 @@ app.post("/criar-pagamento", async (req, res) => {
     };
 
     const response = await fetch(
-      "https://app.sigilopay.com.br/api/v1/gateway/checkout",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": process.env.SIGILO_API_KEY
-        },
-        body: JSON.stringify(payload)
-      }
-    );
+  "https://app.sigilopay.com.br/api/v1/gateway/checkout",
+  {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "x-public-key": process.env.SIGILO_PUBLIC_KEY,
+      "x-secret-key": process.env.SIGILO_SECRET_KEY
+    },
+    body: JSON.stringify(payload)
+  }
+);
 
     const data = await response.json();
 
